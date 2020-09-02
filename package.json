@@ -1,0 +1,21 @@
+{
+  "name": "eldoku",
+  "version": "1.0.0",
+  "description": "Sudoku game built with ElectronJS.",
+  "main": "app.js",
+  "scripts": {
+    "test": "node test.js",
+    "start": "conda activate mainenv && electron app.js",
+    "babel": "npm run babel && electron app.js"
+  },
+  "author": "atas <andy.torkin@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^9.2.1",
+    "eslint": "^7.7.0",
+    "readline": "^1.3.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  }
+}

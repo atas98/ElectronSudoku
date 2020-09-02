@@ -1,0 +1,226 @@
+* {
+    user-select: none;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+button {
+    border-style: outset;
+    box-shadow: none;
+    border: 0;
+}
+
+button:active {
+    border-style: outset;
+    box-shadow: none;
+    border: 0;
+}
+
+button:focus {
+    outline: none;
+}
+
+body {
+    background: linear-gradient(90deg, rgba(236,182,126,1) 0%, rgba(232,195,156,1) 50%, rgba(252,176,69,1) 100%);
+    flex-direction: column;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    -webkit-app-region: drag;    
+}
+
+#logo h2 {
+    font-family: 'Kaushan Script', cursive;
+    font-size: 68px;
+    color: #a75d17;
+}
+
+header time {
+    font-family: 'Alata', sans-serif;
+    font-style: italic;
+    font-size: 50px;
+    color: #a75d17;
+    align-self: flex-end;
+    padding-right: 20px;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+main #left-controls {
+    width: 60px;
+    margin-right: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+main #left-controls button {
+    height: 40px;
+    width: 40px;   
+    margin-top: 5px;
+    border-radius: 100%;
+    background-color: #e8c39c;
+    border: 4px solid #a58470;
+    color: #a58470;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+main #left-controls button:hover {
+    border-color: #6B5243
+}
+
+main #left-controls button:active {
+    color: #6B5243
+}
+
+main #left-controls #Undo {
+    height: 60px;
+    width: 60px;   
+    font-size: 30px;
+}
+
+main #left-controls #Redo {
+    align-self: flex-end;
+}
+
+
+main #left-controls input[type=radio] {
+    display: none;
+}
+
+main #left-controls .radio-btn {
+    max-width: 40px;
+    max-height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    padding-bottom: 3%;
+    flex-grow: 1;
+    border-radius: 100%;
+    background-color: #e8c39c;
+    border: 4px solid #a58470;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    margin-top: 5px;
+    margin-left: 8px;
+    align-self: flex-end;
+}
+
+main #left-controls #Color {
+    margin-top: 115px;   
+}
+
+main #left-controls .radio-btn label {
+    width: 100%;
+    height: 100%;
+    padding-top: 5px;
+    text-align: center;
+    color: #a58470;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+main #left-controls .radio-btn:hover {
+    border-color: #6B5243
+}
+
+main #left-controls .radio-btn input[type=radio]:checked + label {
+    color: #6B5243;
+}
+
+main #game-field {
+    width: 350px;
+    height: 350px;
+    border: 6px solid #a58470;
+}
+
+main #game-field table{
+    width: 100%;
+    height: 100%;
+    border: 1px solid #a58470;
+    border-collapse: collapse;
+    user-select: auto;
+}
+
+main #game-field td {
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #a58470;
+    user-select: auto;
+    height: 9%;
+    width: 9%;
+}
+
+main #game-field td button {
+    height: 100%;
+    width: 100%;
+    background-color: transparent;
+    cursor: pointer; 
+}
+
+main #game-field table td:nth-child(3n):nth-child(-n+8) {
+    border-right: 3px solid #a58470;
+}
+
+main #game-field table tr:nth-child(3n):nth-child(-n+8) {
+    border-bottom: 3px solid #a58470;
+}
+
+main #right-controls {
+    width: 55px;
+    margin-left: 20px;
+    /* border: 4px solid #a58470; */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-content: center;
+}
+
+
+main #right-controls .radio-btn {
+    width: 28px;
+    max-width: 28px;
+    height: 28px;
+    max-height: 28px;
+    padding-bottom: 3%;
+    flex-grow: 1;
+    border-radius: 100%;
+    border: 3px solid #a58470;
+    background-color: #e8c39c;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    margin-top: 5px;
+    margin-left: 8px;
+}
+
+main #right-controls input[type=radio] {
+    display: none;
+}
+
+main #right-controls label {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-family: 'Alata', sans-serif;
+    color: #a58470;
+}
+
+main #right-controls .radio-btn:hover {
+    border-color: #6B5243;
+}
+
+main #right-controls .radio-btn input[type=radio]:checked + label {
+    color: #6B5243;
+}
