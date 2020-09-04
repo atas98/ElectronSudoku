@@ -1,6 +1,5 @@
 const { ipcMain } = require('electron');
 const fetch = require('node-fetch');
-// Is it nessesary to do server queries at node part?
 
 module.exports = (window) => {
     // TODO: Change timeout for event
@@ -11,7 +10,7 @@ module.exports = (window) => {
 
     function update_box() {
         let box;
-        fetch('http://127.0.0.1:8000/box')
+        fetch('http://127.0.0.1:8000/api/sudoku/box')
             .then((response) => {
                 response.json()
                 .then((data) => {
@@ -26,24 +25,69 @@ module.exports = (window) => {
     }
 
     ipcMain.on("guess", (event, args) => {
-        fetch('http://127.0.0.1:8000/guess', {
+        fetch('http://127.0.0.1:8000/api/sudoku/guess', {
             method: 'post',
             body:    JSON.stringify({
                 "coords": [args.coords.x, args.coords.y],
                 "digit": args.digit
             }),
             headers: { 'Content-Type': 'application/json' },
-        }).catch((err) => {
+        })
+        .then((response) => {
+            response.json()
+            .then((status) => {
+                console.log(status)
+                window.webContents.send('guess_status', status)
+            }) 
+        })
+        .then(update_box)
+        .catch((err) => {
             console.log("ERROR: POST {/guess} query failed!")
         });
-        update_box()
     });
 
-    // TODO: Make it possible for reject check without fully writed box
+    ipcMain.on("clear", () => {
+        fetch('http://127.0.0.1:8000/api/sudoku/clear', {
+            method: 'post',
+        })
+        // TODO: write json response to history
+        .then(update_box)
+        .catch((err) => {
+            console.log("ERROR: POST {/clear} query failed!")
+        });
+    });
+
+    ipcMain.on("reset", () => {
+        fetch('http://127.0.0.1:8000/api/sudoku/reset', {
+            method: 'post',
+        })
+        .then(update_box)
+        .catch((err) => {
+            console.log("ERROR: POST {/reset} query failed!")
+        });
+
+        setTimeout(update_box, 2000)
+    });
+
     // TODO: new dialog with result / stop clock / save results to db
-    ipcMain.handle("check", async (event, args) => 
+    ipcMain.handle("isfull", (event, args) => 
         new Promise( (resolve, reject) => {
-            fetch('http://127.0.0.1:8000/check')
+            fetch('http://127.0.0.1:8000/api/sudoku/isfull')
+            .then((response) => {
+                response.json()
+                .then((isfull_result) => {
+                    resolve(isfull_result);
+                });
+            })
+            .catch((err) => {
+                reject("ERROR: GET {/isfull} query failed! O_o")
+            })
+        })
+    );
+
+    ipcMain.handle("check", (event, args) => 
+        new Promise( (resolve, reject) => {
+            fetch('http://127.0.0.1:8000/api/sudoku/check')
             .then((response) => {
                 response.json()
                 .then((check_result) => {

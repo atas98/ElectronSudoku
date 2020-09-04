@@ -6,6 +6,12 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet">
+
+    <!-- ! Field digits fonts ! -->
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./menu.css">
   </head>
@@ -18,18 +24,18 @@
     <aside>
       <ul class="asideList">
         <li><a class="asideAnchor" id="check-btn">Check</a></li>
-        <li><a class="asideAnchor">Auto</a></li>
-        <li><a class="asideAnchor">Clear</a></li>
-        <li><a class="asideAnchor">Reset</a></li>
-        <li><a class="asideAnchor">Menu</a></li>
+        <li><a class="asideAnchor" id="auto-btn">Auto</a></li>
+        <li><a class="asideAnchor" id="clear-btn">Clear</a></li>
+        <li><a class="asideAnchor" id="reset-btn">Reset</a></li>
+        <li><a class="asideAnchor" id="menu-btn">Menu</a></li>
         <li><a class="asideAnchor" id="exit-btn">Exit</a></li>
       </ul>
     </aside>
 
     <main>
       <section id="left-controls">
-        <button id="Undo"><i class="fas fa-undo"></i></button>
-        <button id="Redo"><i class="fas fa-redo"></i></button>
+        <button id="undo-btn"><i class="fas fa-undo"></i></button>
+        <button id="redo-btn"><i class="fas fa-redo"></i></button>
         <div class="radio-btn" id="Color">
           <input type="radio" name="mode" id="mode-color" value="color">
           <label for="mode-color"><i class="fas fa-paint-brush"></i></label>
@@ -41,8 +47,10 @@
       </section>
       
 
-      <section id="game-field">
-        <!-- JS-generated 9x9 button table -->
+      <section id="game-field-border">
+        <div id="game-field">
+          <!-- JS-generated 9x9 button table -->
+        </div>
       </section>
 
 

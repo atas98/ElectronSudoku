@@ -1,3 +1,4 @@
+'strict'
 class Session {
     static select_methods = Object.freeze({
         DIGIT: 1, 
@@ -11,18 +12,18 @@ class Session {
     });
     
     static actions = Object.freeze({
-        PLACE_DIGIT: 1,   // Place digit into field 
-        REMOVE_DIGIT: 2,  // Remove digit from field 
-        PLACE_NOTE: 3,    // Place note into field 
-        REMOVE_NOTE: 4    // Remove note into field
+        PLACE_DIGIT: 1,   // Place digit into field
+        PLACE_NOTE: 2,    // Place note into field
+        REMOVE_NOTE: 2,    // Place note into field
+        Clear: 3
     });
 
-    static create_history_object(action, coords, digit) {
-        return new Dict({
-            "action": action,
+    static create_history_object(type, coords, digit) {
+        return {
+            "type": type,
             "coords": coords,
             "digit": digit
-        });
+        };
     }
 
     constructor(sel_method) {
@@ -32,10 +33,10 @@ class Session {
         this.selected_digit = 0;
         this.selected_coords = [[]];
 
+        // TODO: Restrict max length of the history 
         this.undo_history = [];
         this.redo_history = [];
     }
-
 }
 
 module.exports = Session

@@ -11,19 +11,11 @@ class SudokuGame:
             self.initial_box = box.copy()
             self.box = box.copy()
 
-        # initializing notes grid (9x9) with empty lists
-        self.notes = np.empty((9, 9), dtype=object)
-        for i in np.ndindex(self.notes.shape):
-            self.notes[i] = []
-
-        self._undo_buffer = deque()
-        self._redo_buffer = deque()
-
         self.auto_check = auto
         self.full = False
 
     def guess(self, coords, digit):
-        if digit < 1 or digit > 9:
+        if digit < 0 or digit > 9:
             return False
         if coords[0] > 8 or coords[0] < 0 or coords[1] > 8 or coords[1] < 0:
             return False
@@ -32,9 +24,8 @@ class SudokuGame:
             return False
 
         self.box[coords] = digit
-        self._undo_buffer.append({})
 
-        if check:
+        if self.auto_check:
             if not check(self.box):
                 self.box[coords] = 0
                 return False
@@ -42,50 +33,25 @@ class SudokuGame:
         self.full = isfull(self.box)
         return True
 
-    def note(self, coords, digit):
-        if digit not in self.notes[coords]:
-            self.notes[coords].append(digit)
-            return True
-        else:
-            return False
-
     def check(self):
         return check(self.box)
 
-    def reset(self):
-        self.box = self.initial_box.copy()
-        # initializing notes grid (9x9) with empty lists
-        self.notes = np.empty((9, 9), dtype=object)
-        for i in np.ndindex(self.notes.shape):
-            self.notes[i] = []
-
-        self._undo_buffer = deque()
-        self._redo_buffer = deque()
-
-    def undo(self):
-        # TODO: Implement undo feature
-        # TODO: Save actions to history stack
-        pass
-
-    def redo(self):
-        # TODO: Implement redo feature
-        # TODO: Save undo actions to history stack
-        pass
-
     def clear(self):
-        # TODO: save state in undo_buffer
+        diff = self.box-self.initial_box
         self.box = self.initial_box.copy()
-        return True
+        return [el for el in np.ndenumerate(diff.astype(np.int)) if el[1] != 0]
 
 
 if __name__ == "__main__":
     from importer import generate
     game = SudokuGame(generate(2))
-    print(game.guess((3, 2), 9))
-    print(game.full)
-    print(game.note((3, 3), 9))
-    print(game.notes)
-    game.clear()
-    game.reset()
-    print(game.check())
     print(game.box)
+    game = SudokuGame(generate(2))
+    print(game.box)
+    # for i in range(9):
+    #     for j in range(9):
+    #         game.guess((i, j), 1)
+    # log = game.clear()
+    # log_json = json.dumps(log, cls=NumpyEncoder)
+    # print(type(log[0][1]))
+    # print(log_json)

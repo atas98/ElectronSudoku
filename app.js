@@ -1,7 +1,9 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
 
+const OPTIONS = require('./settings.json');
 const subprocess = require('./server/server_start')
 const init_logic = require('./server/logic')
 
@@ -9,10 +11,9 @@ let window = null;
 
 // Wait until the app is ready
 app.once('ready', () => {
-    // TODO: Load settings from json file
 
     // Run python server
-    let py_cli = subprocess.start("python", "8000");
+    let py_cli = subprocess.start("python", OPTIONS.PORT);
 
     // Create a new window
     window = new BrowserWindow({
@@ -26,7 +27,7 @@ app.once('ready', () => {
         // Don't show the window until it's ready, this prevents any white flickering
         show: false,
         frame: false,
-        resizable: true, //! changeTHIS
+        resizable: false, //! changeTHIS
         fullscreenable: false,
         maximizable: false,
         webPreferences: {
@@ -46,6 +47,7 @@ app.once('ready', () => {
 
     // Append logic
     // FIXME: do stuff only when server is ready
+    // Use sync signal with interval on app run
     init_logic(window);
        
 
