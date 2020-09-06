@@ -1,7 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
-const fs = require('fs');
 
 const OPTIONS = require('./settings.json');
 const subprocess = require('./server/server_start')

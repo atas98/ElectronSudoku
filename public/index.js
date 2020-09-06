@@ -1,7 +1,7 @@
 const {ipcRenderer} = require('electron')
 const Session = require('./session.js');
 
-let session = new Session(Session.select_methods.DIGIT);
+let session = new Session(Session.select_methods.DIGIT, 200, 200); // TODO: Fix magic numbers
 
 // * Menu buttons *
 document.getElementById("check-btn").addEventListener("click", check_button_click);
@@ -128,7 +128,7 @@ function clear_button_click() {
 
 function reset_button_click() {
     ipcRenderer.send("reset")
-    session = new Session(Session.select_methods.DIGIT);
+    session = new Session(Session.select_methods.DIGIT, 200, 200);
     sw = resetStopWatch()
 }
 
