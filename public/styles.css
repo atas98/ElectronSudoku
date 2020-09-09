@@ -170,7 +170,6 @@ main #game-field td {
 
 main #game-field td button {
     font: 24px 'Fredoka One', cursive;
-    color: #994800;
     text-align: center;
     vertical-align: middle;
 
@@ -180,6 +179,20 @@ main #game-field td button {
     cursor: pointer;
 }
 
+/* * Cell classes * */
+main #game-field td button.normal {
+    color: #cc6000;
+}
+
+main #game-field td button.active {
+    color: #b22222;
+}
+
+main #game-field td button.initial {
+    color: #994800;    
+}
+
+/* * Grid sections highlighting * */
 main #game-field table td:nth-child(3n):nth-child(-n+8) {
     border-right: 3px solid #994800/*#a58470*/;
 }
