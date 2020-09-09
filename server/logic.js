@@ -1,21 +1,27 @@
 const { ipcMain } = require('electron');
-const fetch = require('node-fetch');
+const fetch = require('fetch-timeout');
 
-module.exports = (window) => {
-    // TODO: Change timeout for event
-    setTimeout(
-        update_box, 5000
-    );
-    // update_box()
+module.exports = (window, OPTIONS) => {
+    init_box()
 
-    function update_box() {
-        let box;
-        fetch('http://127.0.0.1:8000/api/sudoku/box')
+    function init_box() {
+        fetch('http://127.0.0.1:8000/api/sudoku/initial_box', {}, OPTIONS.FETCH_TIMEOUT)
             .then((response) => {
                 response.json()
-                .then((data) => {
-                    box = data;
-                    // console.log(box)
+                .then((box) => {
+                    window.webContents.send('init', box)
+                })
+            })
+            .catch((err) => {
+                console.log("ERROR: GET {/initial_box} query failed!")
+        })
+    }
+
+    function update_box() {
+        fetch('http://127.0.0.1:8000/api/sudoku/box', {}, OPTIONS.FETCH_TIMEOUT)
+            .then((response) => {
+                response.json()
+                .then((box) => {
                     window.webContents.send('update', box)
                 })
             })
@@ -29,10 +35,11 @@ module.exports = (window) => {
             method: 'post',
             body:    JSON.stringify({
                 "coords": [args.coords.x, args.coords.y],
-                "digit": args.digit
+                "digit": args.digit,
+                "autocheck": args.autocheck
             }),
             headers: { 'Content-Type': 'application/json' },
-        })
+        }, OPTIONS.FETCH_TIMEOUT)
         .then((response) => {
             response.json()
             .then((status) => {
@@ -49,8 +56,13 @@ module.exports = (window) => {
     ipcMain.on("clear", () => {
         fetch('http://127.0.0.1:8000/api/sudoku/clear', {
             method: 'post',
+        }, OPTIONS.FETCH_TIMEOUT)
+        .then((response) => {
+            response.json()
+            .then((data) => {
+                window.webContents.send('clear-response', data)
+            })
         })
-        // TODO: write json response to history
         .then(update_box)
         .catch((err) => {
             console.log("ERROR: POST {/clear} query failed!")
@@ -60,8 +72,8 @@ module.exports = (window) => {
     ipcMain.on("reset", () => {
         fetch('http://127.0.0.1:8000/api/sudoku/reset', {
             method: 'post',
-        })
-        .then(update_box)
+        }, OPTIONS.FETCH_TIMEOUT)
+        .then(init_box)
         .catch((err) => {
             console.log("ERROR: POST {/reset} query failed!")
         });
@@ -69,10 +81,9 @@ module.exports = (window) => {
         setTimeout(update_box, 2000)
     });
 
-    // TODO: new dialog with result / stop clock / save results to db
-    ipcMain.handle("isfull", (event, args) => 
+     ipcMain.handle("isfull", (event, args) => 
         new Promise( (resolve, reject) => {
-            fetch('http://127.0.0.1:8000/api/sudoku/isfull')
+            fetch('http://127.0.0.1:8000/api/sudoku/isfull', {}, OPTIONS.FETCH_TIMEOUT)
             .then((response) => {
                 response.json()
                 .then((isfull_result) => {
@@ -87,7 +98,7 @@ module.exports = (window) => {
 
     ipcMain.handle("check", (event, args) => 
         new Promise( (resolve, reject) => {
-            fetch('http://127.0.0.1:8000/api/sudoku/check')
+            fetch('http://127.0.0.1:8000/api/sudoku/check', {}, OPTIONS.FETCH_TIMEOUT)
             .then((response) => {
                 response.json()
                 .then((check_result) => {

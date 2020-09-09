@@ -14,6 +14,7 @@
     "eslint": "^7.7.0"
   },
   "dependencies": {
+    "fetch-timeout": "0.0.2",
     "node-fetch": "^2.6.0"
   }
 }
