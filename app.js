@@ -9,10 +9,15 @@ const init_logic = require('./server/logic')
 let window = null;
 
 // Wait until the app is ready
-app.once('ready', () => {
+app.once('ready', async () => {
 
     // Run python server
-    let py_cli = subprocess.start("python", OPTIONS.PORT);
+    try {
+        await subprocess.start(OPTIONS.PYTHON_PATH, OPTIONS.PORT);
+    } catch (err) {
+        console.log(`Error: ${err}`)
+        app.quit()
+    }
 
     // Create a new window
     window = new BrowserWindow({
@@ -26,7 +31,7 @@ app.once('ready', () => {
         // Don't show the window until it's ready, this prevents any white flickering
         show: false,
         frame: false,
-        resizable: false, //! changeTHIS
+        resizable: OPTIONS.RESIZABLE,
         fullscreenable: false,
         maximizable: false,
         webPreferences: {
@@ -34,30 +39,28 @@ app.once('ready', () => {
         }
     });
 
-    window.webContents.openDevTools() //! deleteTHIS
-
+    if (OPTIONS.DEVTOOLS) {
+        window.webContents.openDevTools()
+    }
+    
     // Load a URL in the window to the local index.html path
     window.loadURL(url.format({
         pathname: path.join(__dirname, './public/index.html'),
         protocol: 'file:',
         slashes: true
     }));
-
-
-    // Append logic
-    // FIXME: do stuff only when server is ready
-    // Use sync signal with interval on app run
-    init_logic(window);
-       
-
+  
+    
     // Show window when page is ready
     window.once('ready-to-show', () => {
         window.show()
+        // Append logic
+        init_logic(window, OPTIONS);
     });
 
-
+    // Close app when all windows were closed
     app.on('window-all-closed', () => {
-        py_cli.kill()
-        app.quit()
+        subprocess.stop();
+        app.quit();
     });
 });
