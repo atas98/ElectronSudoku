@@ -4,17 +4,16 @@ from checker import check, isfull
 
 
 class SudokuGame:
-    def __init__(self, box, auto=False):
+    def __init__(self, box):
         if not isinstance(box, np.ndarray):
             raise TypeError("Wrong box type!")
         else:
             self.initial_box = box.copy()
             self.box = box.copy()
 
-        self.auto_check = auto
         self.full = False
 
-    def guess(self, coords, digit):
+    def guess(self, coords, digit, autocheck):
         if digit < 0 or digit > 9:
             return False
         if coords[0] > 8 or coords[0] < 0 or coords[1] > 8 or coords[1] < 0:
@@ -25,7 +24,7 @@ class SudokuGame:
 
         self.box[coords] = digit
 
-        if self.auto_check:
+        if autocheck:
             if not check(self.box):
                 self.box[coords] = 0
                 return False
@@ -40,6 +39,14 @@ class SudokuGame:
         diff = self.box-self.initial_box
         self.box = self.initial_box.copy()
         return [el for el in np.ndenumerate(diff.astype(np.int)) if el[1] != 0]
+
+    def restart(self, box):
+        if not isinstance(box, np.ndarray):
+            raise TypeError("Wrong box type!")
+        else:
+            self.initial_box = box.copy()
+            self.box = box.copy()
+        self.full = False
 
 
 if __name__ == "__main__":

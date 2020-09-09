@@ -24,9 +24,10 @@ def guess_handler():
     try:
         coords = tuple(request.json["coords"])
         digit = request.json["digit"]
+        autocheck = request.json["autocheck"]
     except KeyError:
         abort(400)
-    return json.dumps(game.guess(coords, digit))
+    return json.dumps(game.guess(coords, digit, autocheck))
 
 
 @app.route('/api/sudoku/clear', methods=['POST'])
@@ -43,7 +44,7 @@ def reset_handler():
             level = 1
     else:
         level = 1
-    game = SudokuGame(generate(level))
+    game.restart(generate(level))
     return ""
 
 
@@ -57,9 +58,18 @@ def check_handler():
     return json.dumps(game.check())
 
 
+@app.route('/api/sudoku/initial_box', methods=['GET'])
+def initial_box_handler():
+    return json.dumps(game.initial_box, cls=NumpyEncoder)
+
 @app.route('/api/sudoku/box', methods=['GET'])
 def box_handler():
     return json.dumps(game.box, cls=NumpyEncoder)
+
+
+@app.route('/api/status', methods=['GET'])
+def status_handler():
+    return json.dumps(True)
 
 
 def sigterm_handler(_signo, _stack_frame):
