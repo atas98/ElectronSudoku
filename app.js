@@ -2,9 +2,8 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
 
-const OPTIONS = require('./settings.json');
+const OPTIONS = require('./configuration.json');
 const subprocess = require('./server/server_start')
-const init_logic = require('./server/logic')
 
 let window = null;
 
@@ -54,8 +53,6 @@ app.once('ready', async () => {
     // Show window when page is ready
     window.once('ready-to-show', () => {
         window.show()
-        // Append logic
-        init_logic(window, OPTIONS);
     });
 
     // Close app when all windows were closed

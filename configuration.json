@@ -2,8 +2,6 @@
     "PORT": "8000",
     "PYTHON_PATH": "python",
     "HISTORY_MAXLEN": 200,
-    "SELECT_METHOD": 1,
     "DEVTOOLS": true,
-    "RESIZABLE": false,
-    "FETCH_TIMEOUT": 2000
+    "RESIZABLE": false
 }

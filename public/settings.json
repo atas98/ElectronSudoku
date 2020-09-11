@@ -1,0 +1,5 @@
+{
+    "FETCH_TIMEOUT": 2000,
+    "SELECT_METHOD": 1,
+    "MAXHiSTORYLEN": 200
+}
