@@ -1,5 +1,5 @@
 const { dialog } = require('electron').remote;
-const {ipcRenderer} = require('electron');
+const { ipcRenderer } = require('electron');
 const fetch = require('fetch-timeout');
 
 const SETTINGS = require('./settings.json')
@@ -10,60 +10,56 @@ document.getElementsByTagName("main")[0].addEventListener("click", () => {
     session.selected_coords = []
 });
 
-function init_box() {
-    fetch('http://127.0.0.1:8000/api/sudoku/initial_box', {}, SETTINGS.FETCH_TIMEOUT)
-        .then((response) => {
-            response.json()
-            .then((box) => {
-                for (let i = 0, row; row = table.rows[i]; i++) {
-                    for (let j = 0, cell; cell = row.cells[j]; j++) {
-                        let elem = cell.getElementsByTagName('button')[0];
-                        // Clear all classes from button
-                        elem.classList.forEach(elem_class => elem.classList.remove(elem_class))
-                        if (box[i][j] !== 0) {
-                            elem.classList.add('initial');
-                            elem.textContent = box[i][j];
-                        } else {
-                            elem.classList.add('normal');
-                            elem.textContent = '';
-                        }
-                    }  
-                }
-            })
-        })
-        .catch((err) => {
-            console.log("ERROR: GET {/initial_box} query failed!")
-    })
+async function init_box() {
+    let response;
+    try {
+        response = await fetch('http://127.0.0.1:8000/api/sudoku/initial_box', {}, SETTINGS.FETCH_TIMEOUT)
+    }
+    catch {
+        throw "ERROR: GET {/initial_box} query failed!"
+    }
+    let box = await response.json()
+    for (let i = 0, row; row = table.rows[i]; i++) {
+        for (let j = 0, cell; cell = row.cells[j]; j++) {
+            let elem = cell.getElementsByTagName('button')[0];
+            // Clear all classes from button
+            elem.classList.forEach(elem_class => elem.classList.remove(elem_class))
+            if (box[i][j] !== 0) {
+                elem.classList.add('initial');
+                elem.textContent = box[i][j];
+            } else {
+                elem.classList.add('normal');
+                elem.textContent = '';
+            }
+        }  
+    }
 }
 
 // * Update box *
-function update_box() {
-    fetch('http://127.0.0.1:8000/api/sudoku/box', {}, SETTINGS.FETCH_TIMEOUT)
-        .then((response) => {
-            response.json()
-            .then((box) => {
-                for (let i = 0, row; row = table.rows[i]; i++) {
-                    for (let j = 0, cell; cell = row.cells[j]; j++) {
-                        if (box[i][j] !== 0) {
-                            cell.getElementsByTagName('button')[0].textContent = box[i][j];
-                        } else {
-                            cell.getElementsByTagName('button')[0].textContent = '';
-                        }
-                    }
-                }
-            })
-        })
-        .catch((err) => {
-            console.log("ERROR: GET {/box} query failed!")
-    })
+async function update_box() {
+    let box;
+    try {
+        box = await (await fetch('http://127.0.0.1:8000/api/sudoku/box', {}, SETTINGS.FETCH_TIMEOUT)).json()
+    } catch {
+        throw "ERROR: GET {/box} query failed!"
+    }    
+
+    for (let i = 0, row; row = table.rows[i]; i++) {
+        for (let j = 0, cell; cell = row.cells[j]; j++) {
+            if (box[i][j] !== 0) {
+                cell.getElementsByTagName('button')[0].textContent = box[i][j];
+            } else {
+                cell.getElementsByTagName('button')[0].textContent = '';
+            }
+        }
+    }
 }
 
 async function game_field_click(event) {
     let col_idx = event.target.parentElement.cellIndex;
     let row_idx = event.target.parentElement.parentElement.rowIndex; 
             
-    // game_field_click(row_idx, col_idx, event.target);
-
+    // ! session.SELECT_METHOD === Session.select_methods.COORDS
     // if (session.SELECT_METHOD === Session.select_methods.COORDS) {
     //     button.addEventListener("mouseenter", (event) => {
     //         let col_idx = event.target.parentElement.cellIndex;
@@ -77,32 +73,75 @@ async function game_field_click(event) {
 
 
     //TODO: Split mods into functions and initialize game_field_click with reference
+    curr_cell = table.rows[row_idx].cells[col_idx].getElementsByTagName('button')[0]
     if (session.MODE === Session.mods.NORMAL) {
-        if (session.SELECT_METHOD === Session.select_methods.DIGIT) {    
-            let curr_digit = Number(table.rows[row_idx].cells[col_idx].getElementsByTagName('button')[0].textContent)
+        if (session.SELECT_METHOD === Session.select_methods.DIGIT) {
             let result = await guess({"x": row_idx, "y": col_idx}, session.selected_digit, false);
             if (result) {
-                session.undo_history.push(
-                    Session.create_history_object(
-                        Session.actions.PLACE_DIGIT, 
-                        {"x":row_idx, "y":col_idx},
-                        curr_digit
-                ));
+                let curr_digit = Number(curr_cell.textContent)
+                if (isgrid(event.target)) {
+                    session.undo_history.push(
+                        Session.create_history_object(
+                            Session.actions.REMOVE_NOTE, 
+                            {"x":row_idx, "y":col_idx},
+                            remove_notegrid(event.target) // array of notnull notes
+                    ));
+                } else {
+                    session.undo_history.push(
+                        Session.create_history_object(
+                            Session.actions.PLACE_DIGIT, 
+                            {"x":row_idx, "y":col_idx},
+                            curr_digit
+                    ));
+                }
             }
         } else {
             // TODO: Handler for {SELECT_METHOD: COORDS}
         }
     } else if (session.MODE === Session.mods.NOTE) {
+        // FIXME: Raplacing note with digit replaces all notes
+        // FIXME: Making note brokes history stacks
         if (session.SELECT_METHOD === Session.select_methods.DIGIT) {
-            // TODO: note mode logic
+            if (session.selected_digit) {
+                if  (isgrid(event.target)) {
+                // GRID
+                    if (!event.target.childNodes[session.selected_digit-1].textContent) {
+                        session.undo_history.push(
+                            Session.create_history_object(
+                                Session.actions.PLACE_NOTE, 
+                                {"x":row_idx, "y":col_idx},
+                                get_notesgrid(event.target) // returns array of notes
+                        ));
+                        event.target.childNodes[session.selected_digit-1].textContent = session.selected_digit;
+                    } else {
+                        session.undo_history.push(
+                            Session.create_history_object(
+                                Session.actions.REMOVE_NOTE, 
+                                {"x":row_idx, "y":col_idx},
+                                get_notesgrid(event.target) // returns array of notes
+                        ));
+                        event.target.childNodes[session.selected_digit-1].textContent = '';
+                    }
+                } else if (!event.target.innerHTML) { 
+                // EMPTY
+                    session.undo_history.push(
+                        Session.create_history_object(
+                            Session.actions.REMOVE_NOTE, 
+                            {"x":row_idx, "y":col_idx},
+                            0 // placing grid on empty cell
+                    ));
+                    link_notegrid(event.target)
+                    event.target.childNodes[session.selected_digit-1].textContent = session.selected_digit
+                }
+            }
         } else {
-            // TODO: note mode logic
+            // TODO: note mode logic with coords mod
         }
     } else if (session.MODE === Session.mods.COLOR) {
         if (session.SELECT_METHOD === Session.select_methods.DIGIT) {
             // TODO: color mode logic
         } else {
-            // TODO: color mode logic
+            // TODO: color mode logic with coords mod
         }
     }
 }
@@ -129,35 +168,39 @@ async function guess (coords, digit, autocheck) {
 }
 
 
-function clear_button_click() {
-    fetch('http://127.0.0.1:8000/api/sudoku/clear', {
-        method: 'post',
-    }, SETTINGS.FETCH_TIMEOUT)
-    .then((response) => {
-        response.json()
-        .then((history_data) => {
-            // [[[x, y], d], ...] => [{"coords": {"x": x, "y": y}, "digit": d}, ...]
-            let structured_data = history_data.map(el => Session.create_history_object(Session.actions.PLACE_DIGIT, {"x": el[0][0], "y": el[0][1]}, el[1]))
-            session.undo_history.push(structured_data)
-        })
-    })
-    .then(update_box)
-    .catch((err) => {
-        console.log("ERROR: POST {/clear} query failed!")
-    });
+async function clear_button_click() {
+    let history_data;
+    try {
+        history_data = await (await fetch('http://127.0.0.1:8000/api/sudoku/clear', {
+            method: 'post',
+        }, SETTINGS.FETCH_TIMEOUT)).json()
+    } catch {
+        throw "ERROR: POST {/clear} query failed!"
+    }
+    // [[[x, y], d], ...] => [{"coords": {"x": x, "y": y}, "digit": d}, ...]
+    let structured_data = history_data.map(el => Session.create_history_object(Session.actions.PLACE_DIGIT, {"x": el[0][0], "y": el[0][1]}, el[1]))
+    session.undo_history.push(structured_data)
+    update_box()
 }
 
 
-function reset_button_click() {
-    fetch('http://127.0.0.1:8000/api/sudoku/reset', {
-        method: 'post',
-    }, SETTINGS.FETCH_TIMEOUT)
-    .then(init_box)
-    .catch((err) => {
-        console.log("ERROR: POST {/reset} query failed!")
-    });
+async function reset_button_click() {
+    try {
+        await fetch('http://127.0.0.1:8000/api/sudoku/reset', {
+            method: 'post',
+        }, SETTINGS.FETCH_TIMEOUT)
+    } catch {
+        throw "ERROR: POST {/reset} query failed!"
+    }
+
+    init_box()
+
+    for (let input of document.getElementsByTagName("input")) {
+        if (input.type === "radio"){
+            input.checked = false;
+        }
+    }
     
-    // TODO: Uncheck mod radio and digit radio
     session = new Session(Session.select_methods.DIGIT, 200, 200);
     sw = resetStopWatch()
 }
@@ -249,4 +292,36 @@ function redo_button_click() {
     if (action.type === Session.actions.PLACE_DIGIT) {
         guess(action.coords, action.digit, false);
     }
+}
+
+function link_notegrid(target) {
+    let note_cells = []
+    for(let i = 0; i < 9; i++) {
+        let note_cell = document.createElement("small");
+        target.appendChild(note_cell)
+        target.classList.add("notes")
+        note_cells.push(note_cell)
+    }
+    return note_cells;
+}
+
+function remove_notegrid(target) {
+    target.classList.remove("notes")
+    let notes = get_notesgrid(target)
+    target.textContent = '';
+    return notes
+}
+
+function get_notesgrid(target) {
+    let notes = [];
+    for (small of target.childNodes) {
+        if (small.textContent) {            
+            notes.push(small.textContent)
+        }
+    }
+    return notes
+}
+
+function isgrid(cell) {
+    return cell.classList.contains("notes")
 }

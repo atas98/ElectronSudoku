@@ -161,7 +161,6 @@ main #game-field table {
 }
 
 main #game-field td {
-    /* !!!!!!!!! */
     border: 1px solid #a58470;
     user-select: auto;
     height: 9%;
@@ -190,6 +189,19 @@ main #game-field td button.active {
 
 main #game-field td button.initial {
     color: #994800;    
+}
+
+/* * Cell notes classes * */
+main #game-field td button.notes {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+}
+
+main #game-field td button.notes small {
+    color: #994800; 
+    font: 0.3em 'Permanent Marker', cursive;
 }
 
 /* * Grid sections highlighting * */

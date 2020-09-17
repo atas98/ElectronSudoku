@@ -3,5 +3,5 @@
     "PYTHON_PATH": "python",
     "HISTORY_MAXLEN": 200,
     "DEVTOOLS": true,
-    "RESIZABLE": false
+    "RESIZABLE": true
 }

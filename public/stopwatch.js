@@ -2,7 +2,7 @@ const sw_object = document.getElementById("Stopwatch")
 let timeStart;
 let timeCurrent;
 
-// TODO: check/sync final time with server
+
 function resetStopWatch() {
     timeStart = new Date().getTime();
     timeCurrent = new Date(0);
@@ -18,7 +18,7 @@ function resetStopWatch() {
 
 function stopStopWatch(w) {
     clearInterval(w)
-} // xD
+}
 
 let sw = resetStopWatch();
 
