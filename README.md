@@ -22,4 +22,3 @@ Sudoku game made using JSElectron framework and python backend
 - [ ] Sudoku editor
 - [ ] Custom sudoku generator
 - [ ] Auto complete algo
-- [ ] Voice control
